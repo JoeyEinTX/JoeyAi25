@@ -7,28 +7,43 @@
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <div class="container">
-        <img src="assets/joeyai-matrix-headshot.jpg" alt="JoeyAi Headshot" class="headshot">
-        <h1>Welcome to JoeyAi</h1>
+    <!-- Full-screen background -->
+    <div class="background" id="background"></div>
+    
+    <!-- Main container -->
+    <div class="container" id="mainContainer">
+        <h1 class="title">Welcome to JoeyAi</h1>
+        
         <div class="chat-section">
-            <input type="text" id="chat-input" placeholder="Ask me anything…" autocomplete="off">
+            <input 
+                type="text" 
+                id="chatInput" 
+                class="chat-input" 
+                placeholder="Ask me anything…" 
+                autocomplete="off"
+            >
+            
             <div class="memory-toggle">
+                <span id="memoryLabel">Memory ON</span>
                 <label class="switch">
-                    <input type="checkbox" id="memory-switch" checked>
+                    <input type="checkbox" id="memorySwitch" checked>
                     <span class="slider"></span>
                 </label>
-                <span id="memory-label">Memory ON</span>
             </div>
         </div>
     </div>
-    <div id="left-panel" class="side-panel left">
+
+    <!-- Side panels -->
+    <div class="side-panel left" id="leftPanel">
         <h2>Memory Explorer</h2>
-        <div class="panel-content" id="memory-explorer-content"></div>
+        <div class="panel-content" id="memoryContent"></div>
     </div>
-    <div id="right-panel" class="side-panel right">
+
+    <div class="side-panel right" id="rightPanel">
         <h2>System Monitor</h2>
-        <div class="panel-content" id="system-monitor-content"></div>
+        <div class="panel-content" id="systemContent"></div>
     </div>
+
     <script src="scripts/app.js"></script>
 </body>
 </html>
