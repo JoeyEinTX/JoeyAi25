@@ -28,6 +28,34 @@ body {
     cursor: default;
 }
 
+/* Engaged state styles */
+body.engaged .background {
+    filter: blur(10px) brightness(0.3) contrast(1.2);
+}
+
+body.engaged .chat-section {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.engaged .container {
+    justify-content: flex-start;
+    padding-top: 2rem;
+}
+
+body.engaged .title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    position: fixed;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Full-screen background */
 .background {
     position: fixed;
@@ -351,4 +379,17 @@ body {
     50% { content: '..'; }
     75% { content: '...'; }
     100% { content: ''; }
+}
+
+/* FINAL OVERRIDE: Engaged state panel visibility - Highest priority */
+body.engaged .side-panel.left,
+body.engaged #leftPanel {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+body.engaged .side-panel.right,
+body.engaged #rightPanel {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
 }

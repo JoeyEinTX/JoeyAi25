@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const message = chatInput.value.trim();
             
             if (!firstMessageSent) {
+                wakeCockpitOnce();
                 triggerCinematicTransition();
                 firstMessageSent = true;
             }
@@ -32,6 +33,23 @@ document.addEventListener('DOMContentLoaded', function() {
             chatInput.value = '';
         }
     });
+
+    // Wake cockpit function - triggers engaged state
+    function wakeCockpitOnce() {
+        if (!document.body.classList.contains('engaged')) {
+            document.body.classList.add('engaged');
+            console.log('🚀 Cockpit engaged - UI transitioning to active state');
+            console.log('Body classes:', document.body.className);
+            
+            // Debug: Check panel visibility after a delay
+            setTimeout(() => {
+                console.log('Left panel classes:', leftPanel.className);
+                console.log('Right panel classes:', rightPanel.className);
+                console.log('Left panel transform:', window.getComputedStyle(leftPanel).transform);
+                console.log('Right panel transform:', window.getComputedStyle(rightPanel).transform);
+            }, 1000);
+        }
+    }
 
     // Memory switch toggle
     memorySwitch.addEventListener('change', function() {
@@ -87,17 +105,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Process message
-    function processMessage(message) {
+    async function processMessage(message) {
         console.log('Processing:', message);
         
-        // Add to memory if panels are active
-        if (leftPanel.classList.contains('active')) {
+        // Add user message immediately
+        appendMessage('user', message);
+        
+        // Send to backend API
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: message, 
+                    memory_enabled: memorySwitch.checked 
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Backend response:', data);
+            
+            // Add assistant reply
+            appendMessage('assistant', data.reply || '(no reply)');
+            
+        } catch (error) {
+            console.error('Chat API error:', error);
+            appendMessage('assistant', '(Error reaching backend)');
+        }
+        
+        // Add to memory if body is engaged (panels are visible)
+        if (document.body.classList.contains('engaged')) {
             addMessageToMemory(message);
         }
         
         // Update system monitor
-        if (rightPanel.classList.contains('active')) {
+        if (document.body.classList.contains('engaged')) {
             updateSystemMonitor();
+        }
+    }
+
+    // Append message to chat area
+    function appendMessage(role, text) {
+        const messageHistory = document.getElementById('messageHistory');
+        if (messageHistory) {
+            const messageElement = document.createElement('p');
+            messageElement.style.opacity = '0.9';
+            messageElement.style.marginTop = '0.5rem';
+            messageElement.style.color = role === 'user' ? '#00ff41' : '#ffffff';
+            messageElement.innerHTML = `[${role.toUpperCase()}] ${text}`;
+            messageHistory.appendChild(messageElement);
+            
+            // Scroll to bottom
+            memoryContent.scrollTop = memoryContent.scrollHeight;
         }
     }
 
@@ -192,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function createMatrixEffect(element) {
         const chars = '01';
         let interval = setInterval(() => {
-            if (!element.classList.contains('active')) {
+            if (!document.body.classList.contains('engaged')) {
                 clearInterval(interval);
                 return;
             }
@@ -233,20 +292,23 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(matrixStyle);
 
-    // Start matrix effects when panels are active
+    // Start matrix effects when body becomes engaged
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                 const target = mutation.target;
-                if (target.classList.contains('active') && target.classList.contains('side-panel')) {
-                    setTimeout(() => createMatrixEffect(target), 1000);
+                if (target === document.body && target.classList.contains('engaged')) {
+                    // Start matrix effects on both panels after a delay
+                    setTimeout(() => {
+                        createMatrixEffect(leftPanel);
+                        createMatrixEffect(rightPanel);
+                    }, 1000);
                 }
             }
         });
     });
 
-    observer.observe(leftPanel, { attributes: true });
-    observer.observe(rightPanel, { attributes: true });
+    observer.observe(document.body, { attributes: true });
 
     console.log('🤖 JoeyAi initialized - Ready for interaction');
 });

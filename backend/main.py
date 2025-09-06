@@ -4,7 +4,12 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-from .routes import chat, memory, system
+try:
+    # Try relative import when running from project root
+    from backend.routes import chat, memory, system
+except ImportError:
+    # Fall back to absolute import when running from backend directory
+    from routes import chat, memory, system
 
 # Create FastAPI app
 app = FastAPI(
